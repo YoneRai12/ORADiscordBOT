@@ -20,10 +20,6 @@ from .logging_conf import setup_logging
 from .storage import Store
 from .utils.link_client import LinkClient
 from .utils.llm_client import LLMClient
-from .utils.search_client import SearchClient
-from .utils.tts_client import VoiceVoxClient
-from .utils.voice_manager import VoiceManager
-from .utils.stt_client import WhisperClient
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +33,6 @@ class ORABot(commands.Bot):
         link_client: LinkClient,
         store: Store,
         llm_client: LLMClient,
-        tts_client: VoiceVoxClient,
-        stt_client: WhisperClient,
-        search_client: SearchClient,
         intents: discord.Intents,
     ) -> None:
         super().__init__(
@@ -52,19 +45,9 @@ class ORABot(commands.Bot):
         self.store = store
         self.llm_client = llm_client
         self.started_at = time.time()
-        self.voice_manager = VoiceManager(self, tts_client, stt_client)
-        self.search_client = search_client
 
     async def setup_hook(self) -> None:
-        await self.add_cog(
-            CoreCog(
-                self,
-                link_client=self.link_client,
-                store=self.store,
-                privacy_default=self.config.privacy_default,
-                speak_default=self.config.speak_search_progress_default,
-            )
-        )
+        await self.add_cog(CoreCog(self, self.link_client))
         await self.add_cog(
             ORACog(
                 self,
@@ -73,9 +56,6 @@ class ORABot(commands.Bot):
                 public_base_url=self.config.public_base_url,
                 ora_api_base_url=self.config.ora_api_base_url,
                 privacy_default=self.config.privacy_default,
-                speak_default=self.config.speak_search_progress_default,
-                search_client=self.search_client,
-                voice_manager=self.voice_manager,
             )
         )
         self.tree.on_error = self.on_app_command_error
@@ -160,9 +140,6 @@ async def run_bot() -> None:
 
     link_client = LinkClient(config.ora_api_base_url)
     llm_client = LLMClient(config.llm_base_url, config.llm_api_key, config.llm_model)
-    tts_client = VoiceVoxClient(config.voicevox_api_url, config.voicevox_speaker_id)
-    stt_client = WhisperClient()
-    search_client = SearchClient(config.search_api_key, config.search_engine)
     store = Store(config.db_path)
     await store.init()
 
@@ -171,9 +148,6 @@ async def run_bot() -> None:
         link_client=link_client,
         store=store,
         llm_client=llm_client,
-        tts_client=tts_client,
-        stt_client=stt_client,
-        search_client=search_client,
         intents=intents,
     )
 
