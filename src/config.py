@@ -27,11 +27,6 @@ class Config:
     llm_api_key: str
     llm_model: str
     privacy_default: str
-    voicevox_api_url: str
-    voicevox_speaker_id: int
-    search_api_key: Optional[str]
-    search_engine: Optional[str]
-    speak_search_progress_default: int
 
     @classmethod
     def load(cls) -> "Config":
@@ -86,31 +81,6 @@ class Config:
         if privacy_default not in {"private", "public"}:
             privacy_default = "private"
 
-        voicevox_api_url = os.getenv("VOICEVOX_API_URL", "http://localhost:50021").rstrip("/")
-        voicevox_speaker_raw = os.getenv("VOICEVOX_SPEAKER_ID", "1")
-        try:
-            voicevox_speaker_id = int(voicevox_speaker_raw)
-        except ValueError as exc:  # pragma: no cover - validation only
-            raise ConfigError("VOICEVOX_SPEAKER_ID は数値で指定してください。") from exc
-
-        search_api_key_raw = os.getenv("SEARCH_API_KEY")
-        search_api_key = search_api_key_raw.strip() if search_api_key_raw else None
-        if search_api_key == "":
-            search_api_key = None
-
-        search_engine_raw = os.getenv("SEARCH_ENGINE")
-        search_engine = search_engine_raw.strip() if search_engine_raw else None
-        if search_engine == "":
-            search_engine = None
-
-        speak_search_default_raw = os.getenv("SPEAK_SEARCH_PROGRESS_DEFAULT", "0")
-        try:
-            speak_search_progress_default = int(speak_search_default_raw)
-        except ValueError as exc:  # pragma: no cover - validation only
-            raise ConfigError("SPEAK_SEARCH_PROGRESS_DEFAULT は 0 または 1 を指定してください。") from exc
-        if speak_search_progress_default not in (0, 1):
-            raise ConfigError("SPEAK_SEARCH_PROGRESS_DEFAULT は 0 または 1 を指定してください。")
-
         return cls(
             token=token,
             app_id=app_id,
@@ -123,9 +93,4 @@ class Config:
             llm_api_key=llm_api_key,
             llm_model=llm_model,
             privacy_default=privacy_default,
-            voicevox_api_url=voicevox_api_url,
-            voicevox_speaker_id=voicevox_speaker_id,
-            search_api_key=search_api_key,
-            search_engine=search_engine,
-            speak_search_progress_default=speak_search_progress_default,
         )
