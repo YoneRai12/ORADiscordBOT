@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src ./src
 
-ENV PYTHONPATH=/app/src
+ENV PYTHONPATH=/app
 
-CMD ["python", "-m", "bot"]
+CMD ["python", "-m", "src.bot"]
