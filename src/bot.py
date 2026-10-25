@@ -137,6 +137,7 @@ async def run_bot() -> None:
 
     intents = discord.Intents.none()
     intents.guilds = True
+    intents.voice_states = True
 
     link_client = LinkClient(config.ora_api_base_url)
     llm_client = LLMClient(config.llm_base_url, config.llm_api_key, config.llm_model)
